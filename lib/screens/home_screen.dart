@@ -6,7 +6,7 @@ import '../widgets/medicine_grid_item.dart';
 import '../models/medicine.dart';
 import './detail_screen.dart';
 import './add.dart';
-import './edit.dart'; // Tambahkan file edit_screen.dart untuk halaman edit.
+import './edit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -35,8 +35,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshMedicines() async {
     setState(() {
-      futureMedicines = apiService.fetchMedicines(); // Memanggil ulang data
+      futureMedicines = apiService.fetchMedicines();
     });
+  }
+
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // Navigasi logika untuk tab
+    if (index == 1) {
+      // Tambahkan navigasi ke halaman profil
+      Navigator.pushNamed(context, '/profile');
+    }
   }
 
   @override
@@ -54,6 +67,24 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              // Logika jika tombol Home ditekan
+              setState(() {
+                _selectedIndex = 0;
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              // Navigasi ke halaman profil
+              Navigator.pushNamed(context, '/profile');
+            },
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +185,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   icon: const Icon(Icons.edit,
                                       color: Colors.blue),
                                   onPressed: () async {
-                                    // Menunggu hasil dari halaman Edit
                                     bool? result = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -163,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     );
                                     if (result == true) {
-                                      _refreshMedicines(); // Refresh data jika berhasil
+                                      _refreshMedicines();
                                     }
                                   },
                                 ),
@@ -217,10 +247,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
           if (result == true) {
-            _refreshMedicines(); // Refresh data setelah menambah data
+            _refreshMedicines();
           }
         },
         child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blue,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
